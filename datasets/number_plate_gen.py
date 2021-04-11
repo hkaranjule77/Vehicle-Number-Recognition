@@ -1,3 +1,5 @@
+# referred: https://mlblr.com/includes/dataset/index.html
+
 from PIL import ImageFont, ImageDraw, Image  
 import numpy as np 
 import cv2
@@ -32,7 +34,7 @@ for r in range(rtc+1):
             else:
                 number_plate_1 = "MH " + str(r)
             number_plate_1 += (chr(random.randint(65, 90))+chr(random.randint(65, 90))+" " + str(random.randint(1000, 9999)))
-            img = np.zeros((256, 850, 3), np.uint8)
+            img = np.zeros((180, 800, 3), np.uint8)
             pil_img = Image.fromarray(img)
             draw = ImageDraw.Draw(pil_img)
 
@@ -52,7 +54,7 @@ for r in range(rtc+1):
             else:
                 number_plate_1 = "MH " + str(r)
             number_plate_1 += (chr(random.randint(65, 90))+chr(random.randint(65, 90))+" " + str(random.randint(1000, 9999)))
-            img = np.zeros((256, 850, 3), np.uint8)
+            img = np.zeros((180, 800, 3), np.uint8)
             pil_img = Image.fromarray(img)
             draw = ImageDraw.Draw(pil_img)
 
@@ -68,4 +70,4 @@ for r in range(rtc+1):
 
 
 
-cv2.destroyAllWindows()
+#cv2.destroyAllWindows()
