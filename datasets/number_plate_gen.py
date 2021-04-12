@@ -14,7 +14,7 @@ beb = [110, 2, 60, 135, 150]
 
 #use a truetype font 
 #font = ImageFont.truetype("Helvetica-Bold.ttf", 120)  
-font = ImageFont.truetype("BebasNeueBold.ttf", 150)  
+font = ImageFont.truetype("BebasNeueBold.ttf", 45)  
 
 PLATE_DIR = 'gen-plate-dataset'
 
@@ -34,11 +34,11 @@ for r in range(rtc+1):
             else:
                 number_plate_1 = "MH " + str(r)
             number_plate_1 += (chr(random.randint(65, 90))+chr(random.randint(65, 90))+" " + str(random.randint(1000, 9999)))
-            img = np.zeros((180, 800, 3), np.uint8)
+            img = np.zeros((50, 230, 3), np.uint8)
             pil_img = Image.fromarray(img)
             draw = ImageDraw.Draw(pil_img)
 
-            draw.text((75, 25), number_plate_1, font=font)  
+            draw.text((16, 7), number_plate_1, font=font)  
             #draw.text((15, 130), number_plate_2, font=font)
             cv2_img = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
             cv2_img = cv2.bitwise_not(cv2_img)
@@ -54,11 +54,11 @@ for r in range(rtc+1):
             else:
                 number_plate_1 = "MH " + str(r)
             number_plate_1 += (chr(random.randint(65, 90))+chr(random.randint(65, 90))+" " + str(random.randint(1000, 9999)))
-            img = np.zeros((180, 800, 3), np.uint8)
+            img = np.zeros((50, 230, 3), np.uint8)
             pil_img = Image.fromarray(img)
             draw = ImageDraw.Draw(pil_img)
 
-            draw.text((75, 25), number_plate_1, font=font)  
+            draw.text((16, 8), number_plate_1, font=font)  
             # draw.text((15, 130), number_plate_2, font=font)
             cv2_img = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
             cv2_img = cv2.bitwise_not(cv2_img)
