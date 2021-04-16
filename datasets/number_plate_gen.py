@@ -28,7 +28,7 @@ rtc = 67
 bias = 10
 for r in range(rtc+1):
     if r < 4:
-        for k in range(500):
+        for k in range(50):
             if r < 10:
                 number_plate_1 = "MH 0" + str(r)
             else:
@@ -48,7 +48,7 @@ for r in range(rtc+1):
             cv2.imwrite(img_path, cv2_img)
             #cv2.waitKey(10)
     else:
-        for k in range(100):
+        for k in range(10):
             if r < 10:
                 number_plate_1 = "MH 0" + str(r)
             else:
