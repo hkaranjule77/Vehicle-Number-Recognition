@@ -2,4 +2,5 @@
 .jovianrc
 cifar_net.pth
 CNN.ipynb
+kaggle-rcnn2.ipynb
 rcnn2.ipynb
