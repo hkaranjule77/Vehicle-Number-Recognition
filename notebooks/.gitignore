@@ -1,0 +1,5 @@
+.ipynb_checkpoints
+.jovianrc
+cifar_net.pth
+CNN.ipynb
+rcnn2.ipynb
