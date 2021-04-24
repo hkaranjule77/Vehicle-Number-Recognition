@@ -28,11 +28,11 @@ rtc = 67
 bias = 10
 for r in range(rtc+1):
     if r < 4:
-        for k in range(50):
+        for k in range(5):
             if r < 10:
-                number_plate_1 = "MH 0" + str(r)
+                number_plate_1 = "JK 0" + str(r)
             else:
-                number_plate_1 = "MH " + str(r)
+                number_plate_1 = "JK " + str(r)
             number_plate_1 += (chr(random.randint(65, 90))+chr(random.randint(65, 90))+" " + str(random.randint(1000, 9999)))
             img = np.zeros((50, 230, 3), np.uint8)
             pil_img = Image.fromarray(img)
@@ -48,11 +48,11 @@ for r in range(rtc+1):
             cv2.imwrite(img_path, cv2_img)
             #cv2.waitKey(10)
     else:
-        for k in range(10):
+        for k in range(1):
             if r < 10:
-                number_plate_1 = "MH 0" + str(r)
+                number_plate_1 = "JK 0" + str(r)
             else:
-                number_plate_1 = "MH " + str(r)
+                number_plate_1 = "JK " + str(r)
             number_plate_1 += (chr(random.randint(65, 90))+chr(random.randint(65, 90))+" " + str(random.randint(1000, 9999)))
             img = np.zeros((50, 230, 3), np.uint8)
             pil_img = Image.fromarray(img)
