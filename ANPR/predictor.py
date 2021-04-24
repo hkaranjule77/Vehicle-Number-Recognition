@@ -17,7 +17,24 @@ IMAGE_WIDTH = 230
 NUM_WORKERS = 0
 
 class Predictor:
+    '''
+        Model Loader and Predictor for Number Plate Recognizer. 
+        1) While initializing, Model Path is required.
+        2) Use predict method which takes pil image as input and
+           returns label for it.
+
+        Example: 
+        predictor = Predictor('./text-recognizer-ver-x.x.pth')
+        
+        img = Image.open(img_path)
+        label = predictor.predict(img)
+    '''
     def __init__(self, model_path):
+        '''
+            Initializor/Constructor for Predictor class. 
+            Input:
+                model_path: String of Model path(.pth file only)
+        '''
         if torch.cuda.is_available():
             DEVICE = 'cuda'
         else:
@@ -38,29 +55,53 @@ class Predictor:
         self.encoder.fit(classes)
 
     def decode_predictions(self, predictions):
-        ''' Takes raw prediction of models and decodes it into label '''
+        ''' 
+            Takes raw predictions of model and decodes it into one label.
+            NOTE: It's many to one mapping for predictions to label.
+            To make work it in production.
+            It do two things:
+            i) removes null charactor
+            ii) removes repeated character
+
+            Input:
+                predictions: List of predictions
+            Returns:
+                label: String of processed single label
+        '''
         predictions = predictions.permute(1, 0, 2)
         predictions = torch.softmax(predictions, 2)
         predictions = torch.argmax(predictions, 2)
         predictions = predictions.detach().cpu().numpy()
+        wrapper = predictions
 
         preds = []
-        for prediction in predictions:
-            temp = ''
+        for prediction in wrapper:
+            label = ''
             prev_char = None
-            for k in prediction:
-                k = k - 1
-                if k == -1 or prev_char == k:
+            for char in prediction:
+                # 1 was added to include null character
+                # subtracting 1 to remove it
+                char = char - 1 
+                # -1 is null character
+                if char == -1 or prev_char == char:
                     prev_char = None
                     continue
                 else:
-                    temp += self.encoder.inverse_transform([k])[0]
-                prev_char = k
-            preds.append(temp)
-        return temp
+                    label += self.encoder.inverse_transform([char])[0]
+                prev_char = char
+
+        # in production it predicts only img at a time
+        # so, directly returning decoded string
+        return label
             
 
     def predict(self, pil_img):
+        ''' Predicts Number Plate by using passed PIL Image to get prediction.
+            Input:
+                pil_img: PIL Image of a Number Plate
+            Returns:
+                prediction: String of Number Plate Label 
+         '''
         img = pil_img.resize(
                 (IMAGE_WIDTH, IMAGE_HEIGHT),
                 resample=Image.BILINEAR)
@@ -72,9 +113,9 @@ class Predictor:
         img_tensor = img_tensor.unsqueeze(0)
         # print(img_tensor.shape)
         data = img_tensor.to(DEVICE)
-        pred, _ = self.model(data)
-        pred = self.decode_predictions(pred)
-        return pred
+        prediction, _ = self.model(data)
+        prediction = self.decode_predictions(prediction)
+        return prediction
 
 
 
