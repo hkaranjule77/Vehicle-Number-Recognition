@@ -2,14 +2,17 @@ from tkinter import *
 from PIL import ImageTk
 from tkinter import messagebox
 import cv2
+import os
 import numpy as np
+
+img_path = os.path.join('.', 'GUI-imgs', 'bg1.jpg')
 
 class Login:
 	def __init__(self,root):
 		self.root=root
 		self.root.title("LOGIN SYSTEM")
 		self.root.geometry("1000x600+100+50")
-		self.bg=ImageTk.PhotoImage(file="c:/TECHNICAL MATERIAL/bg.jpg")
+		self.bg=ImageTk.PhotoImage(file=img_path)
 		self.bg_image=Label(self.root,image=self.bg).place(x=0,y=0,relwidth=1,relheight=1)
 
 		Frame_login=Frame(self.root,bg="white")
@@ -92,24 +95,44 @@ obj=Login(root)
 #-------CAMERA-----------------
 vehicle = Toplevel(root)
 vehicle.title("Vehicle Number Detection")
-vehicle.geometry("1280x480+650+50")
+vehicle.geometry("1020x510+650+50")
 vehicle.configure(bg='light blue')
 
-logo_upb =ImageTk.PhotoImage(file="c:/TECHNICAL MATERIAL/bg.jpg")
+img_canvas = Canvas(vehicle, width=620, height=460)
+
+img_path = os.path.join('.', 'GUI-imgs', 'bg1.jpg')
+print(os.path.exists(img_path))
+logo_upb =ImageTk.PhotoImage(file=img_path)
+'''
 label = Label(vehicle, image=logo_upb,height=480,width=640)
 label.image = logo_upb
 label.place(bordermode=INSIDE, x=0, y=0)
+'''
 
-btnopenCam = Button(vehicle, text="cam", width=20, font=('arial',18,'bold'),command=f1 )
-btnDetect = Button(vehicle, text="DETECT", width=20, font=('arial',18,'bold'))
+img_canvas.create_image(0, 0, anchor=NW, image=logo_upb)
+
+
+btnopenCam = Button(vehicle, text="cam", width=15, font=('arial',18,'bold'),command=f1 )
+btnDetect = Button(vehicle, text="DETECT", width=15, font=('arial',18,'bold'))
 ent_number = Entry(vehicle, bd=5, font=('arial',18,'bold'))
-btnConfirm = Button(vehicle, text="CONFIRM", width=20, font=('arial',18,'bold'))
+btnConfirm = Button(vehicle, text="CONFIRM", width=15, font=('arial',18,'bold'))
 
-btnDetect.grid(row=0,column=8)
-ent_number.grid(row=2,column=8)
-btnConfirm.grid(row=4,column=8)
-btnopenCam.grid(row=6,column=8)
-label.grid(row=0,column=0)
+img_canvas.grid(row=0, column=0, rowspan=4, columnspan=1, padx=(25, 25), pady=(25, 25))
+btnDetect.grid(row=0, column=2, columnspan=1, padx=(5, 25), pady=(25, 5))
+ent_number.grid(row=1, column=2, columnspan=1, padx=(5, 25), pady=(5, 5))
+btnConfirm.grid(row=2, column=2, columnspan=1, padx=(5, 25), pady=(5, 5))
+btnopenCam.grid(row=3, column=2, columnspan=1, padx=(5, 25), pady=(5, 25))
+#label.grid(row=0,column=0)
+
+
+""" img_canvas.pack(side=LEFT)
+btnDetect.pack(side=BOTTOM)
+ent_number.pack(side=BOTTOM)
+btnConfirm.pack(side=BOTTOM)
+btnopenCam.pack(side=BOTTOM) """
+#label.grid(row=0,column=0)
+
 vehicle.withdraw()
+
 
 root.mainloop()
