@@ -1,9 +1,9 @@
 import albumentations
 import numpy as np
 import os
+from PIL import Image
 
 import torch
-from torch._C import dtype
 import torch.nn as nn
 import torch.nn.functional as F
 

@@ -1,2 +1,20 @@
+
+# current directory
+..gitignore.swp
+main.py
+
+
+# sub-directories
+
+ANPR/__pycache__/
+ANPR/images/
+ANPR/sanket.ui
+ANPR/v2.py
+
+datasets/named-plate-dataset/
 datasets/gen-plate-dataset/
+
 notebooks/.ipynb_checkpoints/rcnn-checkpoint.ipynb
+notebooks/kaggle-rcnn.ipynb
+
+train/harshad/text_recognition-ver-19.0.pth
