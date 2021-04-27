@@ -1,9 +1,12 @@
 from tkinter import *
-from PIL import ImageTk
+from PIL import Image, ImageTk
 from tkinter import messagebox
 import cv2
 import os
 import numpy as np
+import threading
+
+from label_predictor import PlateRecognizer, Predictor
 
 img_path = os.path.join('.', 'GUI-imgs', 'bg1.jpg')
 
@@ -40,51 +43,115 @@ class Login:
 			root.withdraw()
 			vehicle.deiconify()
 
-def f1():
-	
+cam = None
+count = 0
+cam_thread = None
 
+CASCADE_PATH = os.path.join('.', 'haarcascade_russian_plate_number.xml')
+
+def cam_init():
+    
     frameWidth = 640    #Frame Width
-    frameHeight = 480   # Frame Height
+    franeHeight = 480   # Frame Height
 
-    plateCascade = cv2.CascadeClassifier("E:\ML\ANPR\haarcascade_russian_plate_number.xml")
+    global cam
+    cam = cv2.VideoCapture(0)
+    cam.set(3,frameWidth)
+    cam.set(4,franeHeight)
+    cam.set(10,150)
+
+    global plateCascade
+    plateCascade = cv2.CascadeClassifier(CASCADE_PATH)
+
+
+
+def detect_plate(img, imgGray):
     minArea = 500
+    numberPlates = plateCascade.detectMultiScale(imgGray, 1.1, 4)
 
-    cap =cv2.VideoCapture(0)
-    cap.set(3,frameWidth)
-    cap.set(4,frameHeight)
-    cap.set(10,150)
+    for (x, y, w, h) in numberPlates:
+        area = w*h
+        if area > minArea:
+            cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            cv2.putText(img,"NumberPlate",(x,y-5),cv2.FONT_HERSHEY_COMPLEX,1,(0,0,255),2)
+            imgRoi = img[y:y+h,x:x+w]
+            cv2.rectangle(img,(0,200),(640,300),(0,255,0),cv2.FILLED)
+            #cv2.putText(img,"Scan Saved",(15,265),cv2.FONT_HERSHEY_COMPLEX,2,(0,0,255),2)
+
+        return img, imgRoi
+    return img, None
+
+
+def cam_read():
+    global cam
+    global logo_upb
+    global img_canvas
+
     count = 0
 
-    while True:
-        success , img  = cap.read()
+    cam_init()
+    while cam.isOpened():
+        success , img  = cam.read()
 
+        if success:
+            imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+            img, _ = detect_plate(img, imgGray)
+
+            img = Image.fromarray(img)
+            logo_upb =ImageTk.PhotoImage(img)
+            img_canvas.create_image(0, 0, anchor=NW, image=logo_upb)
+            #cv2.imshow("Result",img)
+            count += 1
+
+        if cv2.waitKey(500) & 0xFF == ord('q'):
+                cam.release()
+                break
+
+
+def cam_multi_thread():
+    global cam_thread
+    cam_thread = threading.Thread(target=cam_read)
+    cam_thread.start()
+
+
+def detect():
+    success , img  = cam.read()
+    if success:
         imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
 
-        numberPlates = plateCascade .detectMultiScale(imgGray, 1.1, 4)
+        img, imgRoi = detect_plate(img, imgGray)
 
-        for (x, y, w, h) in numberPlates:
-            area = w*h
-            if area > minArea:
-                cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
-                cv2.putText(img,"NumberPlate",(x,y-5),cv2.FONT_HERSHEY_COMPLEX,1,(0,0,255),2)
-                imgRoi = img[y:y+h,x:x+w]
-                cv2.imshow("ROI",imgRoi)
-        cv2.imshow("Result",img)
-        if cv2.waitKey(1) & 0xFF ==ord('s'):
-            cv2.imwrite("E:\ML\Vehicle-Registration-Detection\ANPR\images\img"+str(count)+".jpg",imgRoi)
-            cv2.rectangle(img,(0,200),(640,300),(0,255,0),cv2.FILLED)
-            cv2.putText(img,"Scan Saved",(15,265),cv2.FONT_HERSHEY_COMPLEX,2,(0,0,255),2)
-            cv2.imshow("Result",img)
+        if imgRoi is not None:
+            print("Image write.")
+
+            img_path = os.path.join('.', 'images',str(count)+".jpg")
+            cv2.imwrite(img_path, imgRoi)
+
+            pil_img = Image.fromarray(imgRoi)
+
+            MODEL_PATH = os.path.join('..', 'train', 'harshad', 'text_recognition-ver-17.0.pth')
+
+            predictor = Predictor(MODEL_PATH)
+            print(predictor.predict(pil_img))
+
+            #cv2.imshow("Roi",imgRoi)
             
-            cv2.waitKey(500)
-            count+=1
+        else:
+            raise ValueError('No Number Plate Detected')
+    else:
+        raise ValueError('Camera cannot be opened.')
 
-def f2():
-	login.withdraw()
-	vehicle.deiconify()
+def cam_off():
+    global cam_thread
+    global cam
+    if cam_thread:
+        cam.release()
+        cv2.destroyWindow("Result")
+        cam_thread.join()
+        cam_thread = None
+    else:
+        print("Camera is already off.")
 
 
 #-------FIRST LOGIN PAGE--------
@@ -103,36 +170,30 @@ img_canvas = Canvas(vehicle, width=620, height=460)
 img_path = os.path.join('.', 'GUI-imgs', 'bg1.jpg')
 print(os.path.exists(img_path))
 logo_upb =ImageTk.PhotoImage(file=img_path)
-'''
-label = Label(vehicle, image=logo_upb,height=480,width=640)
-label.image = logo_upb
-label.place(bordermode=INSIDE, x=0, y=0)
-'''
 
 img_canvas.create_image(0, 0, anchor=NW, image=logo_upb)
 
+def prog_exit():
+    ''' Program exit '''
+    global vehicle
+    vehicle.withdraw()
+    exit(0)
 
-btnopenCam = Button(vehicle, text="cam", width=15, font=('arial',18,'bold'),command=f1 )
+
+btnopenCam = Button(vehicle, text="CAMERA ON", width=15, font=('arial',18,'bold'),command=cam_multi_thread)
 btnDetect = Button(vehicle, text="DETECT", width=15, font=('arial',18,'bold'))
-ent_number = Entry(vehicle, bd=5, font=('arial',18,'bold'))
+label_info = Label(vehicle, bd=5, font=('arial',18,'bold'), width=15)
 btnConfirm = Button(vehicle, text="CONFIRM", width=15, font=('arial',18,'bold'))
+btn_close_cam = Button(vehicle, text="CAMERA OFF", width=15, font=('arial',18,'bold'), command=cam_off)
+btn_close_win = Button(vehicle, text="EXIT", width=15, font=('arial',18,'bold'), command=prog_exit)
 
-img_canvas.grid(row=0, column=0, rowspan=4, columnspan=1, padx=(25, 25), pady=(25, 25))
+img_canvas.grid(row=0, column=0, rowspan=6, columnspan=1, padx=(25, 25), pady=(25, 25))
 btnDetect.grid(row=0, column=2, columnspan=1, padx=(5, 25), pady=(25, 5))
-ent_number.grid(row=1, column=2, columnspan=1, padx=(5, 25), pady=(5, 5))
+label_info.grid(row=1, column=2, columnspan=1, padx=(5, 25), pady=(5, 5))
 btnConfirm.grid(row=2, column=2, columnspan=1, padx=(5, 25), pady=(5, 5))
-btnopenCam.grid(row=3, column=2, columnspan=1, padx=(5, 25), pady=(5, 25))
-#label.grid(row=0,column=0)
-
-
-""" img_canvas.pack(side=LEFT)
-btnDetect.pack(side=BOTTOM)
-ent_number.pack(side=BOTTOM)
-btnConfirm.pack(side=BOTTOM)
-btnopenCam.pack(side=BOTTOM) """
-#label.grid(row=0,column=0)
-
+btnopenCam.grid(row=3, column=2, columnspan=1, padx=(5, 25), pady=(5, 5))
+btn_close_cam.grid(row=4, column=2, columnspan=1, padx=(5, 25), pady=(5, 5))
+btn_close_win.grid(row=5, column=2, columnspan=1, padx=(5, 25), pady=(5, 25))
 vehicle.withdraw()
-
 
 root.mainloop()
