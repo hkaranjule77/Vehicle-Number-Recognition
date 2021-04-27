@@ -8,7 +8,7 @@ import threading
 
 from label_predictor import PlateRecognizer, Predictor
 
-img_path = os.path.join('.', 'GUI-imgs', 'bg1.jpg')
+img_path = os.path.join('.', 'GUI-imgs', 'bg.jpg')
 
 class Login:
 	def __init__(self,root):
