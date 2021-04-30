@@ -5,16 +5,18 @@ import cv2
 import os
 import numpy as np
 import threading
+import time
 
 from label_predictor import PlateRecognizer, Predictor
+from db import insert_plate
 
-img_path = os.path.join('.', 'GUI-imgs', 'bg.jpg')
 
 class Login:
 	def __init__(self,root):
 		self.root=root
 		self.root.title("LOGIN SYSTEM")
 		self.root.geometry("1000x600+100+50")
+		img_path = os.path.join('.', 'GUI-imgs', 'bg.jpg')
 		self.bg=ImageTk.PhotoImage(file=img_path)
 		self.bg_image=Label(self.root,image=self.bg).place(x=0,y=0,relwidth=1,relheight=1)
 
@@ -46,14 +48,14 @@ class Login:
 cam = None
 count = 0
 cam_thread = None
+detect_state = False
+label_info = None
 
 CASCADE_PATH = os.path.join('.', 'haarcascade_russian_plate_number.xml')
 
 def cam_init():
-    
     frameWidth = 640    #Frame Width
     franeHeight = 480   # Frame Height
-
     global cam
     cam = cv2.VideoCapture(0)
     cam.set(3,frameWidth)
@@ -75,7 +77,7 @@ def detect_plate(img, imgGray):
             cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
             cv2.putText(img,"NumberPlate",(x,y-5),cv2.FONT_HERSHEY_COMPLEX,1,(0,0,255),2)
             imgRoi = img[y:y+h,x:x+w]
-            cv2.rectangle(img,(0,200),(640,300),(0,255,0),cv2.FILLED)
+            #cv2.rectangle(img,(0,200),(640,300),(0,255,0),cv2.FILLED)
             #cv2.putText(img,"Scan Saved",(15,265),cv2.FONT_HERSHEY_COMPLEX,2,(0,0,255),2)
 
         return img, imgRoi
@@ -86,7 +88,7 @@ def cam_read():
     global cam
     global logo_upb
     global img_canvas
-
+    global detect_state
     count = 0
 
     cam_init()
@@ -94,64 +96,103 @@ def cam_read():
         success , img  = cam.read()
 
         if success:
-            imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            if detect_state:
+                imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                img, imgRoi = detect_plate(img, imgGray)
 
-            img, _ = detect_plate(img, imgGray)
+            try:
+                img_for_gui = Image.fromarray(img)
+                logo_upb =ImageTk.PhotoImage(img_for_gui)
+                img_canvas.create_image(0, 0, anchor=NW, image=logo_upb)
+                # cv2.imshow("Result",img)
+                count += 1
+            except:
+                pass
 
-            img = Image.fromarray(img)
-            logo_upb =ImageTk.PhotoImage(img)
-            img_canvas.create_image(0, 0, anchor=NW, image=logo_upb)
-            #cv2.imshow("Result",img)
-            count += 1
+            if detect_state:
+                detect_state = False
+                if imgRoi is not None:
+                    time.sleep(5)
 
         if cv2.waitKey(500) & 0xFF == ord('q'):
-                cam.release()
-                break
+            cam.release()
 
 
 def cam_multi_thread():
-    global cam_thread
-    cam_thread = threading.Thread(target=cam_read)
-    cam_thread.start()
-
-
-def detect():
-    success , img  = cam.read()
-    if success:
-        imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-        img, imgRoi = detect_plate(img, imgGray)
-
-        if imgRoi is not None:
-            print("Image write.")
-
-            img_path = os.path.join('.', 'images',str(count)+".jpg")
-            cv2.imwrite(img_path, imgRoi)
-
-            pil_img = Image.fromarray(imgRoi)
-
-            MODEL_PATH = os.path.join('..', 'train', 'harshad', 'text_recognition-ver-17.0.pth')
-
-            predictor = Predictor(MODEL_PATH)
-            print(predictor.predict(pil_img))
-
-            #cv2.imshow("Roi",imgRoi)
-            
-        else:
-            raise ValueError('No Number Plate Detected')
+    global cam_thread, cam, label_info
+    if cam is None:
+        cam_thread = threading.Thread(target=cam_read)
+        cam_thread.start()
+        label_info['text'] = "Camera status: \nON"
     else:
-        raise ValueError('Camera cannot be opened.')
+        messagebox.showerror(title="Camrea is already on.", message="Please turn off camera when not required.")
+
+
+def detect_number():
+    global label_info
+    if cam is not None:
+        success , img  = cam.read()
+        if success:
+            imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            img, imgRoi = detect_plate(img, imgGray)
+
+            if imgRoi is not None:
+                #cv2.imshow("Roi",imgRoi)
+                MODEL_PATH = os.path.join('..', 'train', 'harshad', 'text_recognition-ver-24.0.pth')
+                predictor = Predictor(MODEL_PATH)
+                pil_img = Image.fromarray(imgRoi)
+                prediction = predictor.predict(pil_img)
+                # label_info['text'] = "Number plate: " + prediction
+
+                correct_pred = messagebox.askyesno(title="Vehicle Number Plate Confirmation",
+                                    message="\n"+prediction+"'\n\nIs this correct?")
+
+                if correct_pred:
+                    if insert_plate(prediction):
+                        messagebox.showinfo(title="Record saved", 
+                            message=prediction+" record added succesfully.")
+            else:
+                #raise ValueError('No Number Plate Detected')
+                messagebox.showerror(message="No Number Plate Detected.")
+
+
+def detect_on():
+    global detect_state
+    if cam is not None:
+        if detect_state:
+            return
+        else:
+            detect_state = True
+            detect_number()
+    else:
+        messagebox.showerror(title="Camera is off", 
+                    message="Please click \"CAMERA ON\" button first.")
+
 
 def cam_off():
     global cam_thread
     global cam
+    global label_info
     if cam_thread:
         cam.release()
-        cv2.destroyWindow("Result")
-        cam_thread.join()
-        cam_thread = None
+        time.sleep(1)
+        cam = None
+        label_info['text'] = 'Camera status:\n OFF'
     else:
-        print("Camera is already off.")
+        #print("Camera is already off.")
+        messagebox.showinfo(message="Camera is already off")
+
+
+def prog_exit():
+    ''' Program exit '''
+    global vehicle
+    global cam_thread
+    global cam
+
+    if cam is not None:
+        cam.release()
+    vehicle.withdraw()
+    exit(0)
 
 
 #-------FIRST LOGIN PAGE--------
@@ -163,37 +204,31 @@ obj=Login(root)
 vehicle = Toplevel(root)
 vehicle.title("Vehicle Number Detection")
 vehicle.geometry("1020x510+650+50")
-vehicle.configure(bg='light blue')
 
 img_canvas = Canvas(vehicle, width=620, height=460)
 
 img_path = os.path.join('.', 'GUI-imgs', 'bg1.jpg')
-print(os.path.exists(img_path))
 logo_upb =ImageTk.PhotoImage(file=img_path)
 
 img_canvas.create_image(0, 0, anchor=NW, image=logo_upb)
 
-def prog_exit():
-    ''' Program exit '''
-    global vehicle
-    vehicle.withdraw()
-    exit(0)
-
 
 btnopenCam = Button(vehicle, text="CAMERA ON", width=15, font=('arial',18,'bold'),command=cam_multi_thread)
-btnDetect = Button(vehicle, text="DETECT", width=15, font=('arial',18,'bold'))
-label_info = Label(vehicle, bd=5, font=('arial',18,'bold'), width=15)
-btnConfirm = Button(vehicle, text="CONFIRM", width=15, font=('arial',18,'bold'))
+btnDetect = Button(vehicle, text="DETECT", width=15, font=('arial',18,'bold'), command=detect_on)
+label_info = Label(vehicle, text="Click CAMERA ON", width=15, bd=5, font=('arial',18,'bold'))
+#btnConfirm = Button(vehicle, text="CONFIRM", width=15, font=('arial',18,'bold'))
 btn_close_cam = Button(vehicle, text="CAMERA OFF", width=15, font=('arial',18,'bold'), command=cam_off)
 btn_close_win = Button(vehicle, text="EXIT", width=15, font=('arial',18,'bold'), command=prog_exit)
 
 img_canvas.grid(row=0, column=0, rowspan=6, columnspan=1, padx=(25, 25), pady=(25, 25))
-btnDetect.grid(row=0, column=2, columnspan=1, padx=(5, 25), pady=(25, 5))
-label_info.grid(row=1, column=2, columnspan=1, padx=(5, 25), pady=(5, 5))
-btnConfirm.grid(row=2, column=2, columnspan=1, padx=(5, 25), pady=(5, 5))
-btnopenCam.grid(row=3, column=2, columnspan=1, padx=(5, 25), pady=(5, 5))
-btn_close_cam.grid(row=4, column=2, columnspan=1, padx=(5, 25), pady=(5, 5))
-btn_close_win.grid(row=5, column=2, columnspan=1, padx=(5, 25), pady=(5, 25))
+label_info.grid(row=0, column=1, columnspan=1, padx=(5, 25), pady=(25, 5))
+#btnConfirm.grid(row=2, column=2, columnspan=1, padx=(5, 25), pady=(5, 5))
+btnopenCam.grid(row=1, column=1, columnspan=1, padx=(5, 25), pady=(5, 5))
+btn_close_cam.grid(row=2, column=1, columnspan=1, padx=(5, 25), pady=(5, 5))
+btnDetect.grid(row=3, column=1, columnspan=1, padx=(5, 25), pady=(5, 5))
+btn_close_win.grid(row=4, column=1, columnspan=1, padx=(5, 25), pady=(5, 25))
 vehicle.withdraw()
 
 root.mainloop()
+
+exit(0)

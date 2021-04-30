@@ -1,19 +1,21 @@
-import mysql.connector
+from mysql import connector
 
-mydb = mysql.connector.connect(
+mydb = connector.connect(
   host="localhost",
   user="root",
   password="root",
   database="anpr_db"
 )
 
-mycursor = mydb.cursor()
-a="MH 05 1154"
 
-sql = "INSERT INTO records(number) VALUES ('%s')"
-number = a
-mycursor.execute(sql %(number))
 
-mydb.commit()
+def insert_plate(num_plate):
+  mycursor = mydb.cursor()
 
-print(mycursor.rowcount, "record inserted.")
+  insert_query = "INSERT INTO records(number) VALUES ('%s')"
+  mycursor.execute(insert_query %(num_plate))
+
+  mydb.commit()
+
+  print(mycursor.rowcount, "record inserted.")
+  return True

@@ -91,7 +91,7 @@ def detect():
 
             pil_img = Image.fromarray(imgRoi)
 
-            MODEL_PATH = os.path.join('..', 'train', 'harshad', 'text_recognition-ver-17.0.pth')
+            MODEL_PATH = os.path.join('..', 'train', 'harshad', 'text_recognition-ver-24.0.pth')
 
             predictor = Predictor(MODEL_PATH)
             print(predictor.predict(pil_img))

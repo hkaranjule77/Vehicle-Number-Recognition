@@ -1,6 +1,12 @@
-BebasNeueBold.ttf
-curl_gen-plate-dataset.txt
+
+# dataset directories
 gen-plate-dataset
 gen-plate-dataset-v1.0.zip
 gen-plate-dataset-v2.0.zip
 gen-plate-dataset-v3.zip
+unspaced-plate-dataset
+
+# files in dataset directory
+BebasNeueBold.ttf
+curl_gen-plate-dataset.txt
+remove_space.py
