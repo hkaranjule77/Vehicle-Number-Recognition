@@ -15,7 +15,7 @@ class Login:
 	def __init__(self,root):
 		self.root=root
 		self.root.title("LOGIN SYSTEM")
-		self.root.geometry("1000x600+100+50")
+		self.root.geometry("1000x600+650+50")
 		img_path = os.path.join('.', 'GUI-imgs', 'bg.jpg')
 		self.bg=ImageTk.PhotoImage(file=img_path)
 		self.bg_image=Label(self.root,image=self.bg).place(x=0,y=0,relwidth=1,relheight=1)
@@ -31,7 +31,7 @@ class Login:
 		self.txt_user.place(x=90,y=170,width=350,height=35)
 
 		lbl_pass=Label(Frame_login,text="PASSWORD",font=("Goudy old style",15,"bold"),fg="gray",bg="white").place(x=90,y=210)
-		self.txt_pass=Entry(Frame_login,font=("times new roman",15),bg="lightgray")
+		self.txt_pass=Entry(Frame_login, show="*", font=("times new roman",15),bg="lightgray")
 		self.txt_pass.place(x=90,y=240,width=350,height=35)
 	
 		Login_btn=Button(self.root,command=self.login_function,cursor="hand2",text="LOGIN",fg="white",bg="#d77337",font=("times new roman",20)).place(x=300,y=470,width=180,height=40)
@@ -80,7 +80,7 @@ def detect_plate(img, imgGray):
             #cv2.rectangle(img,(0,200),(640,300),(0,255,0),cv2.FILLED)
             #cv2.putText(img,"Scan Saved",(15,265),cv2.FONT_HERSHEY_COMPLEX,2,(0,0,255),2)
 
-        return img, imgRoi
+            return img, imgRoi
     return img, None
 
 
@@ -90,6 +90,7 @@ def cam_read():
     global img_canvas
     global detect_state
     count = 0
+    imgRoi = None
 
     cam_init()
     while cam.isOpened():
@@ -112,10 +113,11 @@ def cam_read():
             if detect_state:
                 detect_state = False
                 if imgRoi is not None:
-                    time.sleep(5)
+                    time.sleep(8)
+                    imgRoi = None
 
-        if cv2.waitKey(500) & 0xFF == ord('q'):
-            cam.release()
+"""         if cv2.waitKey(500) & 0xFF == ord('q'):
+            cam.release() """
 
 
 def cam_multi_thread():
@@ -134,7 +136,7 @@ def detect_number():
         success , img  = cam.read()
         if success:
             imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            img, imgRoi = detect_plate(img, imgGray)
+            _, imgRoi = detect_plate(img, imgGray)
 
             if imgRoi is not None:
                 #cv2.imshow("Roi",imgRoi)
@@ -175,7 +177,7 @@ def cam_off():
     global label_info
     if cam_thread:
         cam.release()
-        time.sleep(1)
+        time.sleep(2)
         cam = None
         label_info['text'] = 'Camera status:\n OFF'
     else:
@@ -204,8 +206,9 @@ obj=Login(root)
 vehicle = Toplevel(root)
 vehicle.title("Vehicle Number Detection")
 vehicle.geometry("1020x510+650+50")
+vehicle.config(bg="light blue")
 
-img_canvas = Canvas(vehicle, width=620, height=460)
+img_canvas = Canvas(vehicle, bg="white", width=620, height=460)
 
 img_path = os.path.join('.', 'GUI-imgs', 'bg1.jpg')
 logo_upb =ImageTk.PhotoImage(file=img_path)

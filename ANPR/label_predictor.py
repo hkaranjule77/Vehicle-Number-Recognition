@@ -7,8 +7,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-
-
 from sklearn import preprocessing
 
 DEVICE = 'cpu'
@@ -53,6 +51,8 @@ class Predictor:
         classes = checkpoint['classes']
         self.encoder = preprocessing.LabelEncoder()
         self.encoder.fit(classes)
+
+        
 
     def decode_predictions(self, predictions):
         ''' 
