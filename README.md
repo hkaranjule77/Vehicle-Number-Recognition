@@ -6,14 +6,14 @@ This project will detect Vehicle Registration Number(VRN) with help of **OpenCV*
 ### Repository Structure
 
 Vehicle-Number-Recognition(repository)  
-|  
-|---NPR(Number Plate Recognition Package)  
-|&nbsp;&nbsp;&nbsp;&nbsp;|---gui  
-|&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;|---images  
-|&nbsp;&nbsp;&nbsp;&nbsp;|---ml_assets  
-|---datasets  
-|---notebooks  
-|---models
+&nbsp;&nbsp;|  
+&nbsp;&nbsp;|---NPR(Number Plate Recognition Package)  
+&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;|---gui  
+&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;|---images  
+&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;|---ml_assets  
+&nbsp;&nbsp;|---datasets  
+&nbsp;&nbsp;|---notebooks  
+&nbsp;&nbsp;|---models
 
 # Software Requirements
 - Python 3.x
@@ -40,11 +40,12 @@ conda create -n environment_name python==3.8
 
 conda activate environment_name
 ```  
-Change current working directory into cloned repository and excute the following command in `terminal/CMD` to install required libraries:
+Excute the following command in `terminal/CMD` to install required libraries:
 ```
 pip install -r requirements.txt
 ```  
 # How to run?
+Change current working directory inside the repository and run the following command: 
 Linux:
 ```
 python3 main.py
