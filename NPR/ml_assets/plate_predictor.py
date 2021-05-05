@@ -9,36 +9,37 @@ import torch.nn.functional as F
 
 from sklearn import preprocessing
 
-DEVICE = 'cpu'
+# local package
+import filepaths as fp
+
 IMAGE_HEIGHT = 50
 IMAGE_WIDTH = 230
 NUM_WORKERS = 0
+MODEL_PATH = os.path.join(fp.MODELS_DIR, 'text_recognition-ver-24.0.pth')
+if torch.cuda.is_available():
+    DEVICE = 'cuda'
+else:
+    DEVICE = 'cpu'
 
 class Predictor:
     '''
         Model Loader and Predictor for Number Plate Recognizer. 
-        1) While initializing, Model Path is required.
-        2) Use predict method which takes pil image as input and
+        Use predict method which takes pil image as input and
            returns label for it.
 
         Example: 
-        predictor = Predictor('./text-recognizer-ver-x.x.pth')
+        predictor = Predictor()
         
         img = Image.open(img_path)
         label = predictor.predict(img)
     '''
-    def __init__(self, model_path):
+    def __init__(self):
         '''
             Initializor/Constructor for Predictor class. 
-            Input:
-                model_path: String of Model path(.pth file only)
+            Input: None
         '''
-        if torch.cuda.is_available():
-            DEVICE = 'cuda'
-        else:
-            DEVICE = 'cpu'
         checkpoint = torch.load(
-                            model_path,
+                            MODEL_PATH,
                             map_location=torch.device(DEVICE)
                           )
         self.model = checkpoint['model']
@@ -119,7 +120,7 @@ class Predictor:
 
 
 
-# model
+# model class for plate recognition
 
 class PlateRecognizer(nn.Module):
     def __init__(self, num_chars):
@@ -194,14 +195,8 @@ if __name__ == '__main__':
 
     from PIL import Image
 
-    ROOT_DIR = '..'
-    MODELS_DIR = os.path.join(ROOT_DIR, 'train')
-    TRAINER_DIR = os.path.join(MODELS_DIR, 'harshad')
-    MODEL_FILE = 'text_recognition-ver-18.0.pth'
-    MODEL_PATH = os.path.join(TRAINER_DIR, MODEL_FILE)
-
     img_path = '/home/hkaranjule77/Desktop/project/sem6-mini/Vehicle-Detection/datasets/gen-plate-dataset/AP 00AX 6535.png'
     pil_img = Image.open(img_path)
 
-    predictor = Predictor(MODEL_PATH)
+    predictor = Predictor()
     print(predictor.predict(pil_img=pil_img))

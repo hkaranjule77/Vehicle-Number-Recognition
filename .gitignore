@@ -1,25 +1,25 @@
 
 # current directory
 ..gitignore.swp
-main.py
-
+__pycache__/
+README.md
 
 # sub-directories
-
-ANPR/__pycache__/
-ANPR/images/
-ANPR/sanket.ui
-ANPR/v2.py
+NPR/.ipynb_checkpoints
+NPR/__pycache__/
+NPR/images/
+NPR/Number_plate_detection.py
+NPR/sanket.ui
+NPR/view.py
+NPR/v2.py
 
 datasets/named-plate-dataset/
 datasets/gen-plate-dataset/
+datasets/unspaced-gen-plate-dataset/
 datasets/unspaced-plate-dataset.zip
+datasets/unspaced-plate-dataset-combined-v1.zip
 datasets/unspaced-plate-dataset-v2.zip
 datasets/unspaced-plate-dataset-v3.zip
+datasets/unspaced-plate-dataset-v4.zip
 
 notebooks/.ipynb_checkpoints/rcnn-checkpoint.ipynb
-notebooks/kaggle-rcnn.ipynb
-
-train/harshad/text_recognition-ver-19.0.pth
-train/harshad/text_recognition-ver-20.0.pth
-train/harshad/text_recognition-ver-21.0.pth

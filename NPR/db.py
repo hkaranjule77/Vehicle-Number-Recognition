@@ -1,5 +1,7 @@
+# third-party library
 from mysql import connector
 
+# credentials for Database
 mydb = connector.connect(
   host="localhost",
   user="root",
@@ -10,6 +12,7 @@ mydb = connector.connect(
 
 
 def insert_plate(num_plate):
+  ''' Inserts value of plate in a anpr_db(database name). '''
   mycursor = mydb.cursor()
 
   insert_query = "INSERT INTO records(number) VALUES ('%s')"
@@ -17,5 +20,6 @@ def insert_plate(num_plate):
 
   mydb.commit()
 
-  print(mycursor.rowcount, "record inserted.")
-  return True
+  if mycursor.rowcount > 0:
+    return True
+  return False
