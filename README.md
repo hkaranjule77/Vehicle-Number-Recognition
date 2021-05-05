@@ -45,7 +45,7 @@ Excute the following command in `terminal/CMD` to install required libraries:
 pip install -r requirements.txt
 ```  
 # How to run?
-Change current working directory inside the repository and run the following command: 
+Change current working directory inside the repository and run the following command:  
 Linux:
 ```
 python3 main.py
