@@ -24,7 +24,8 @@ sudo apt install python3
 sudo apt install python3-pip
 ````
 ##### For Windows:
-Installion guide for Python & PIP: https://docs.python.org/3/using/windows.html
+Installion guide for Python & PIP: https://docs.python.org/3/using/windows.html  
+>**NOTE:** Don't forget to add python environment variable in your machine or it will throw external command error.
   
 # How to install?
 Change your currend working directory of `terminal/CMD` to desired location to download VNR Repository and execute following command:
@@ -54,7 +55,6 @@ Windows:
 ```
 python main.py
 ```
->**NOTE:** Don't forget to add python environment variable in your machine or it will throw external command error.
 
 # References
 - OpenCV docs: https://docs.opencv.org/master/d6/d00/tutorial_py_root.html
