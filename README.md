@@ -28,19 +28,25 @@ Installion guide for Python & PIP: https://docs.python.org/3/using/windows.html
 >**NOTE:** Don't forget to add python environment variable in your machine or it will throw external command error.
   
 # How to install?
-Change your currend working directory of `terminal/CMD` to desired location to download VNR Repository and execute following command:
+Change your current working directory of `terminal/CMD` to desired location to download VNR Repository and execute following command:
 ```
 git clone https://github.com/hkaranjule77/Vehicle-Number-Recognition.git
 ```
 
-### How to install third-party libraries?(production)
-
-**(optional)** Before installing third-party library, we recommend to use a `conda/virtualenv environment`to create new environment to avoid dependecy conflict. Use following commands to create new environment: 
+### Creating Environment for third-party packages (optional)
+Before installing third-party library, we recommend to use a `conda` or `virtualenv` environment to create new environment to avoid dependecy conflict.  
+  
+**For conda:**  
+Official Anaconda Installation Guide: https://docs.anaconda.com/anaconda/install/  
+Use following commands to create new environment in conda: 
 ```
-conda create -n environment_name python==3.8
+conda create -n environment_name python==3.8  # creates new environment
 
-conda activate environment_name
+conda activate environment_name               # takes into new environment
 ```  
+  
+  
+### How to install third-party libraries?(for production only)
 Excute the following command in `terminal/CMD` to install required libraries:
 ```
 pip install -r requirements.txt
