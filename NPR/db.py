@@ -23,3 +23,14 @@ def insert_plate(num_plate):
   if mycursor.rowcount > 0:
     return True
   return False
+
+def select_plate():
+  ''' Gets all Vehicle Registration Number 
+  data from Database. '''
+  select_cur = mydb.cursor()
+  select_query = "SELECT datetime, number from records"
+  select_cur.execute(select_query)
+  return select_cur.fetchall()
+
+if __name__=="__main__":
+  print(type(select_plate()[0][0]))

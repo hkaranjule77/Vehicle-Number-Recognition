@@ -7,12 +7,13 @@ import os
 
 # local package
 import filepaths as fp
+from .detector import DetectorGUI
 
 
 class Login:
     ''' Login GUI made with tkinter '''
 
-    def __init__(self, root, next_window=None):
+    def __init__(self, root):
         self.root = root
         self.root.title("LOGIN SYSTEM")
         self.root.geometry("1000x600+50+50")
@@ -40,7 +41,7 @@ class Login:
 
         Login_btn = Button(self.root, command=self.login_function, cursor="hand2", text="LOGIN", fg="white",
                            bg="#d77337", font=("times new roman", 20)).place(x=300, y=470, width=180, height=40)
-        self.next_window = next_window
+        self.__next_window = None
 
     def login_function(self):
         '''
@@ -54,11 +55,13 @@ class Login:
             messagebox.showerror("ERROR", "INVALID USERNAME/PASSWORD", parent=self.root)
         else:
             self.root.withdraw()
-            if self.next_window is not None:
-                self.next_window.root.deiconify()
-            else:
-                exit(0)
+            if self.__next_window is not None:
+                self.__next_window.deiconify()
 
+
+    def set_next(self, next_window=None):
+        ''' Sets next window which will be displayed after login. '''
+        self.__next_window = next_window
 
 if __name__ == '__main__':
     # -------FIRST LOGIN PAGE--------

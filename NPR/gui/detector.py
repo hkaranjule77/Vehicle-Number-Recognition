@@ -9,10 +9,11 @@ import sys
 import threading
 import time
 
-# local package imports
+# local package absolute imports
 import filepaths as fp
 from NPR.ml_assets.plate_predictor import PlateRecognizer, Predictor
-from NPR.db import insert_plate    
+from NPR.db import insert_plate
+
 
 
 class Camera:
@@ -180,19 +181,53 @@ class PlateDetector:
                 return img, imgRoi
         return img, None
     
+class CorrectionGUI:
+    ''' Correction window class for Vehicle Registration Number. '''
+    def __init__(self, plate_label):
+        # GUI configuration
+        self._root = tk.Toplevel()
+        self._root.title('VRN Correction')
+        self._root.geometry('500x160+700+100')
+        self._root.config(bg='light blue')
+        # GUI elements
+        self.lbl_plate = tk.Label(self._root, 
+                text="Enter correct Vehicle Registration Number:", 
+                font=("times new roman", 15), bg="light blue")
+        self.txt_plate = tk.Entry(self._root, font=("times new roman", 15), 
+                bg="lightgray")
+        self.txt_plate.insert(0, plate_label)
+        self.btn_confirm = tk.Button(self._root, text="Confirm", 
+                font=("times new roman", 15), command=self.confirm)
+        # placing
+        self.lbl_plate.place(x=25, y=10)
+        self.txt_plate.place(x=25, y=50)
+        self.btn_confirm.place(x=25, y=100)
+
+    def confirm(self):
+        ''' Method for Confirm button and saves data. '''
+        self._root.withdraw()
+        if insert_plate(self.txt_plate.get()):
+            messagebox.showinfo(title='Data saved',
+                message="Veicle Registration Number data saved successfully.")
+        else:
+            messagebox.showerror(title='Data not saved',
+                message="Error in saving Vehicle Registration Number.")
+        
 
 
 class DetectorGUI:
     ''' GUI made for Detection using tkinter third-party library. '''
-    def __init__(self, root):
+    DATA_WINDOW = 1
+
+    def __init__(self, data_window=None):
         # GUI COMPONENTS
-        self.root = root
+        self.root = tk.Toplevel()
         self.root.title("Vehicle Number Detection")
         self.root.config(bg="light blue")
         self.root.geometry("1040x530+50+50")
         self.root.protocol("WM_DELETE_WINDOW", self.progExit)
         # video(continous images) but for now a still image is added
-        self.img_canvas = tk.Canvas(root, width=640, height=480)
+        self.img_canvas = tk.Canvas(self.root, width=640, height=480)
         img_path = os.path.join(fp.GUI_IMAGES, 'bg1.jpg')
         # print(img_path)
         logo_upb = ImageTk.PhotoImage(file=img_path)
@@ -201,26 +236,33 @@ class DetectorGUI:
         self.detector = PlateDetector()
         # camera
         self.cam = None
+        self.plate_label = None
+        self.next_window = None
+        self.__data_window = data_window
 
         # buttons
-        self.label_info = tk.Label(root, text="Click CAMERA ON", 
+        self.label_info = tk.Label(self.root, text="Click CAMERA ON", 
             width=15, bd=5, font=('arial',18,'bold'))
-        self.btnopenCam = tk.Button(root, text="CAMERA ON", 
+        self.btnopenCam = tk.Button(self.root, text="CAMERA ON", 
             width=15, font=('arial',18,'bold'),command=self.camOn)
-        self.btn_close_cam = tk.Button(root, text="CAMERA OFF", 
+        self.btn_close_cam = tk.Button(self.root, text="CAMERA OFF", 
             width=15, font=('arial',18,'bold'), command=self.camOff)
-        self.btnDetect = tk.Button(root, text="DETECT", 
+        self.btnDetect = tk.Button(self.root, text="DETECT", 
             width=15, font=('arial',18,'bold'), command=self.detectPlateNumber)
-        self.btn_close_win = tk.Button(root, text="EXIT", 
+        self.btn_data = tk.Button(self.root, text="DATA", 
+            width=15, font=('arial',18,'bold'), command=self.show_data)
+        self.btn_close_win = tk.Button(self.root, text="EXIT", 
             width=15, font=('arial',18,'bold'), command=self.progExit)
 
         # components placing
-        self.img_canvas.grid(row=0, column=0, rowspan=6, columnspan=1, padx=(25, 25), pady=(25, 25))
+        self.img_canvas.grid(row=0, column=0, rowspan=7, columnspan=1, padx=(25, 25), pady=(25, 25))
         self.label_info.grid(row=0, column=1, columnspan=1, padx=(5, 25), pady=(25, 5))
         self.btnopenCam.grid(row=1, column=1, columnspan=1, padx=(5, 25), pady=(5, 5))
         self.btn_close_cam.grid(row=2, column=1, columnspan=1, padx=(5, 25), pady=(5, 5))
         self.btnDetect.grid(row=3, column=1, columnspan=1, padx=(5, 25), pady=(5, 5))
-        self.btn_close_win.grid(row=4, column=1, columnspan=1, padx=(5, 25), pady=(5, 25))
+        self.btn_data.grid(row=4, column=1, columnspan=1, padx=(5, 25), pady=(5, 5))
+        self.btn_close_win.grid(row=5, column=1, columnspan=1, padx=(5, 25), pady=(5, 25))
+
 
     def camOff(self):
         ''' Switches off the camera and hence the video component. '''
@@ -230,6 +272,7 @@ class DetectorGUI:
             self.cam = None
         else:
             messagebox.showinfo(message="Camera is already off")
+
 
     def camOn(self):
         ''' Initializes camera, sets canvas for video component 
@@ -250,6 +293,16 @@ class DetectorGUI:
             messagebox.showerror(title="Error in Camera",
                     message="Camera cannot be turned on.\nError Code: 2")
 
+
+    def clear_next_window(self):
+        ''' Clears next_window attribute of Detector GUI. '''
+        self.next_window = None
+
+    def deiconify(self):
+        ''' Redraws detector window. '''
+        self.root.deiconify()
+
+
     def detectPlateNumber(self):
         ''' Method to be called by the click action of detect button. '''
         if self.cam is not None:
@@ -261,20 +314,17 @@ class DetectorGUI:
             messagebox.showerror(title="Camera is off", 
                         message="Please click \"CAMERA ON\" button first.")
 
+
     def detectThread(self):
         ''' Method for detection to be executed on new Thread. ''' 
         color_frame, gray_frame = self.cam.getDetectFrame()
         plate_img, imgROI = self.detector.detect_plate(color_frame, gray_frame)
         if imgROI is not None:
             tk_plate_img = ImageTk.PhotoImage(Image.fromarray(plate_img))
+            time.sleep(0.5)
             self.img_canvas.create_image(0, 0, anchor=tk.NW, image=tk_plate_img)
             plate_label = self.detector.detect_number(imgROI)
-            correctPlate = messagebox.askyesno(title="Confirm Plate Number",
-                                message="Is this '"+plate_label+"' right?")
-            if correctPlate:
-                if insert_plate(plate_label):
-                    messagebox.showinfo(title='Data saved',
-                        message="Plate Number data saved successfully.")
+            DetectorGUI.save_plate(plate_label)            
         else:
             messagebox.showinfo(title="Plate Detection", 
                 message="No plate found in image.")
@@ -292,3 +342,35 @@ class DetectorGUI:
                     message="Camera not closed properly.")
         self.root.withdraw()
         exit(0)
+
+
+    def save_plate(plate_label):
+        ''' Method for confirmation and saving Vehicle Registraion Number. '''
+        is_correct = messagebox.askyesno(title="Confirm Plate Number",
+                            message="Is this '"+plate_label+"' right?")
+        if is_correct == True:
+            if insert_plate(plate_label):
+                messagebox.showinfo(title='Data saved',
+                    message="Veicle Registration Number data saved successfully.")
+            else:
+                messagebox.showerror(title='Data not saved',
+                    message="Error in saving Vehicle Registration Number.")
+        else:
+            correction = CorrectionGUI(plate_label)
+
+
+    def set_data(self, data_window=None):
+        ''' Set window instance for Data button. '''
+        self.__data_window = data_window
+
+
+    def show_data(self):
+        ''' Set next_window parameter to DATA_WINDOW. '''
+        try:
+            self.cam.turnOff()
+        except Camera.CameraError:
+            pass
+        except AttributeError:
+            pass
+        self.root.withdraw()
+        self.__data_window.deiconify()
