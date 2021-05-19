@@ -15,7 +15,7 @@ import filepaths as fp
 IMAGE_HEIGHT = 50
 IMAGE_WIDTH = 230
 NUM_WORKERS = 0
-MODEL_PATH = os.path.join(fp.MODELS_DIR, 'text_recognition-ver-24.0.pth')
+MODEL_PATH = os.path.join(fp.MODELS_DIR, 'text_recognition-ver-30.0.pth')
 if torch.cuda.is_available():
     DEVICE = 'cuda'
 else:

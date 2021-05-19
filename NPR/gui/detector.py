@@ -366,11 +366,7 @@ class DetectorGUI:
 
     def show_data(self):
         ''' Set next_window parameter to DATA_WINDOW. '''
-        try:
-            self.cam.turnOff()
-        except Camera.CameraError:
-            pass
-        except AttributeError:
-            pass
+        if self.cam is not None:
+            self.camOff()
         self.root.withdraw()
         self.__data_window.deiconify()

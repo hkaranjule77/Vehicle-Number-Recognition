@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter import font
-
 # local package absoulte import
 from NPR.db import select_plate
 
@@ -62,15 +61,30 @@ class ShowDataGUI:
                         command=self.go_back)
         self.btn_back.grid(row=row_index+1, column=2, padx=(25, 25), pady=(25, 25))
 
+    def all_widgets(self):
+        _widgets_list = self._root.winfo_children()
+        for widget in _widgets_list:
+            if widget.winfo_children():
+                _widgets_list.extend(widget.winfo_children)
+        return _widgets_list
+
     def deiconify(self):
         ''' Redraws ShowData window. '''
         self._root.deiconify()
+        self.refresh()
 
     def go_back(self):
         ''' Takes back to detector window. '''
         self._root.withdraw()
         if self.__back_window is not None:
             self.__back_window.deiconify()
+
+    def refresh(self):
+        widgets = self.all_widgets()
+        for widget in widgets:
+            widget.grid_forget()
+        self.add_components()
+
 
     def set_back(self, back_window=None):
         ''' To set back action of Data Window. '''
