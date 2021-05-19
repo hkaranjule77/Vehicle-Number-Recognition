@@ -21,7 +21,7 @@ Vehicle-Number-Recognition(repository)
 # Software Requirements
 - Python 3.x
 - PIP (package manager for python)
-- MySQL Database ((Installation Guide)[https://dev.mysql.com/doc/mysql-installation-excerpt/5.7/en/])
+- [MySQL Database Installation Guide](https://dev.mysql.com/doc/mysql-installation-excerpt/5.7/en/)
 ##### For Linux:
 ```
 sudo apt install python3
@@ -79,6 +79,6 @@ python main.py
 - RCNN Architecture: https://www.youtube.com/watch?v=IcLEJB2pY2Y&t=3161s
 
 # Contributors
--[Harshad Karanjule](https://github.com/hkaranjule77)
--[Arshad Majgaonkar](https://github.com/ArshadMajgaonkar)
--[Sanket Mane](https://github.com/Sanket-Mane)
+- [Harshad Karanjule](https://github.com/hkaranjule77)  
+- [Arshad Majgaonkar](https://github.com/ArshadMajgaonkar)  
+- [Sanket Mane](https://github.com/Sanket-Mane)  
