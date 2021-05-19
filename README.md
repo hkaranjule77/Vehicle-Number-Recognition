@@ -1,6 +1,6 @@
 # Vehicle Number Recognition
 
-A project will detect Vehicle Registration Number(VRN) with help of **OpenCV** and **PyTorch** library of **Python**. It will also help record those numbers in Database. Vehicle Registration Number Recognition is done is two phases:
+A Project which will detect Vehicle Registration Number(VRN) with help of **OpenCV** and **PyTorch** library of **Python**. It will also help record those numbers in Database. Vehicle Registration Number Recognition is done is two phases:
 1. Number Plate Detection *using OpenCV's pre-trained Cascade Classifier*(accuracy: max 70%). 
 2. Text Recognition *using RCNN Architecture in PyTorch*(accuracy: 92%).
 
