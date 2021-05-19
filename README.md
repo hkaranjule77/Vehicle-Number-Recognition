@@ -1,7 +1,10 @@
 # Vehicle Number Recognition
 
-This project will detect Vehicle Registration Number(VRN) with help of **OpenCV** and **PyTorch** library of **Python**.
+A project will detect Vehicle Registration Number(VRN) with help of **OpenCV** and **PyTorch** library of **Python**. It will also help record those numbers in Database. Vehicle Registration Number Recognition is done is two phases:
+1. Number Plate Detection *using OpenCV's pre-trained Cascade Classifier*(accuracy: max 70%). 
+2. Text Recognition *using RCNN Architecture in PyTorch*(accuracy: 92%).
 
+![dataflow](dataflow.png)
 
 ### Repository Structure
 
@@ -18,6 +21,7 @@ Vehicle-Number-Recognition(repository)
 # Software Requirements
 - Python 3.x
 - PIP (package manager for python)
+- MySQL Database ((Installation Guide)[https://dev.mysql.com/doc/mysql-installation-excerpt/5.7/en/])
 ##### For Linux:
 ```
 sudo apt install python3
@@ -62,8 +66,19 @@ Windows:
 python main.py
 ```
 
+# GUI
+
+![login](login.png)  
+![before detection](before_detect.png)  
+![after detection](after_detect.png)  
+
 # References
 - OpenCV docs: https://docs.opencv.org/master/d6/d00/tutorial_py_root.html
 - PyTorch docs: https://pytorch.org/docs/stable/index.html
 - Haar features: https://www.youtube.com/watch?v=F5rysk51txQ
 - RCNN Architecture: https://www.youtube.com/watch?v=IcLEJB2pY2Y&t=3161s
+
+# Contributors
+-[Harshad Karanjule](https://github.com/hkaranjule77)
+-[Arshad Majgaonkar](https://github.com/ArshadMajgaonkar)
+-[Sanket Mane](https://github.com/Sanket-Mane)
